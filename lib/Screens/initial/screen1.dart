@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:goroomy/Constants/colors.dart';
+import 'package:goroomy/Custom/text.dart';
 
+import '../../Custom/Button1.dart';
 class Screen1 extends StatefulWidget {
   const Screen1({super.key});
 
@@ -17,10 +21,75 @@ class _Screen1State extends State<Screen1> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              height: 300,
+              // height: 250,
               color: Colors.amber,
-              // child: ,
+              child:Image(image: AssetImage("assets/screen1.jpg"))
             ),
+            SizedBox(
+              height: 50,
+            ),
+           Padding(
+             padding:  EdgeInsets.symmetric(horizontal:40),
+             child: Column(
+               mainAxisAlignment: MainAxisAlignment.spaceAround,
+               children: [
+                 Text( 'Experience the day time\n hotel experience at\n affordable rates!',
+                   maxLines: 3,
+               textAlign: TextAlign.center,
+                 style: TextStyle(
+                   color: Bluecolor,
+                   fontWeight: FontWeight.bold,
+                   fontSize: 30,
+                   overflow: TextOverflow.ellipsis,
+                 ),
+                 ),
+                 SizedBox(
+                   height: 20,
+                 ),
+                 Text('Whether alone or with a partner, enjoy a hotel room during the day or evening for a few hours. Simply choose your time slot.'),
+                 SizedBox(
+                   height: 20,
+                 ),
+                 Row(
+                   children: [
+                     Expanded(child: CustomButton(title: 'Skip Intro', color1: Colors.grey,
+                       textcolor: Colors.black,
+                       onTap: (){
+                         Navigator.pushNamed(context, 'home_screen');
+                       },
+                     )),
+                   ],
+                 ),
+                SizedBox(
+                  height: 20,
+                ),
+                 Row(
+                   children: [
+                     Expanded(child: CustomButton(title: 'Continue', color1: Bluecolor,
+                       textcolor: Colors.white,
+                       onTap: (){
+                       Navigator.pushNamed(context, 'screen2');
+                       },
+                     )),
+                   ],
+                 ),
+               ],
+             ),
+           ),
+            // CachedNetworkImage(
+            //   imageUrl: "https://cdn.pixabay.com/photo/2020/02/15/14/33/network-4851119_640.jpg",
+            //   imageBuilder: (context, imageProvider) => Container(
+            //     decoration: BoxDecoration(
+            //       image: DecorationImage(
+            //           image: imageProvider,
+            //           fit: BoxFit.cover,
+            //           colorFilter:
+            //           ColorFilter.mode(Colors.red, BlendMode.colorBurn)),
+            //     ),
+            //   ),
+            //   placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+            //   errorWidget: (context, url, error) => Icon(Icons.error),
+            // ),
           ],
         ),
       ),
