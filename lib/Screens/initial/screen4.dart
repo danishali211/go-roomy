@@ -5,19 +5,19 @@ import 'package:goroomy/Custom/text.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../../Custom/Button1.dart';
 import '../../Custom/couraselslider.dart';
-class Screen2 extends StatefulWidget {
-  const Screen2({super.key});
+class Screen4 extends StatefulWidget {
+  const Screen4({super.key});
 
   @override
-  State<Screen2> createState() => _Screen2State();
+  State<Screen4> createState() => _Screen4State();
 }
 final List<String> imgList = [
   "assets/screen2-1.png",
-      "assets/screeen3-1.png",
-      "assets/screen4-1.png",
-  ];
-int _current = 1;
-class _Screen2State extends State<Screen2> {
+  "assets/screeen3-1.png",
+  "assets/screen4-1.png",
+];
+int _current = 3;
+class _Screen4State extends State<Screen4> {
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +67,7 @@ class _Screen2State extends State<Screen2> {
           padding: const EdgeInsets.only(left: 40, right: 40, bottom: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          // crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 20),
@@ -89,7 +89,7 @@ class _Screen2State extends State<Screen2> {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     fit: BoxFit.fill,
-                    image: AssetImage("assets/screen2-1.png",),
+                    image: AssetImage("assets/screen4-1.png",),
                   ),
                 ),
               ),
@@ -111,6 +111,8 @@ class _Screen2State extends State<Screen2> {
               //   height: 40,
               // ),
               Column(
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -132,22 +134,21 @@ class _Screen2State extends State<Screen2> {
 
                               ),
                             ),
-                            Text('${1}', style: TextStyle(
+                            Text('${3}', style: TextStyle(
                               color: Colors.white,
                             ),)
                           ],
                         ),
                       ]
                   ),
-                  Text('Pick your location', style: TextStyle(
+                  Text('Select number of persons', style: TextStyle(
                       fontSize: 16, fontWeight: FontWeight.bold,
                       color: Bluecolor
-
                   ),),
                 ],
               ),
-             // Icon(Icons.calendar_month, size: 200,),
-             //  CarouselWithDotsPage(imgList: imgList),
+              // Icon(Icons.calendar_month, size: 200,),
+              //  CarouselWithDotsPage(imgList: imgList),
               Container(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -156,6 +157,7 @@ class _Screen2State extends State<Screen2> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children:imgList!.map((url) {
                         int index = imgList!.indexOf(url);
+                        print('index--- ${index+1}');
                         return Container(
                           width: 7,
                           height: 7,
@@ -165,7 +167,7 @@ class _Screen2State extends State<Screen2> {
                           ),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _current == index+1
+                            color: _current == index-1
                                 ? Color.fromRGBO(255, 195, 0, 0.9)
                                 : Color.fromRGBO(0, 0, 0, 0.4),
                           ),
@@ -177,7 +179,7 @@ class _Screen2State extends State<Screen2> {
                         Expanded(child: CustomButton(title: 'Continue', color1:Bluecolor,
                           textcolor: Colors.white,
                           onTap: (){
-                            Navigator.pushNamed(context, 'screen3');
+                            Navigator.pushNamed(context, 'screen5');
                           },
                         )),
                       ],
