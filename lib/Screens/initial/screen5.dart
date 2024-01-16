@@ -64,7 +64,9 @@ class _Screen5State extends State<Screen5> {
                         color1: Bluecolor,
                         textcolor: Colors.white,
                         onTap: () {
-                          Navigator.pushNamed(context, 'home_screen');
+                          print('navigating to screen 6');
+                          Navigator.pushNamed(context,'screen6');
+                          print('navigating to screen6+');
                         },
                       )),
                 ],

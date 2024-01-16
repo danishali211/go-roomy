@@ -25,29 +25,5 @@ class CustomButton extends StatelessWidget {
         ),),
       ),
     );
-    //   Padding(
-    //   padding: const EdgeInsets.symmetric(horizontal: 20),
-    //   child: InkWell(
-    //     onTap: onTap,
-    //     child: Container(
-    //       height: height,
-    //       width: double.infinity,
-    //       decoration: BoxDecoration(
-    //         color: color,
-    //         borderRadius: BorderRadius.circular(30),
-    //       ),
-    //       child: loading ? Center(child: CircularProgressIndicator(color: Colors.white,)) :Center(
-    //         child: Text(
-    //           title,
-    //           style: TextStyle(
-    //             color: Colors.white,
-    //             fontSize: 20,
-    //             fontWeight: FontWeight.bold,
-    //           ),
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 }

@@ -12,7 +12,6 @@ class MyText extends StatelessWidget {
     this.color,
     this.wordSpacing,
   });
-  // const MyText({super.key});
 
   @override
   Widget build(BuildContext context) {

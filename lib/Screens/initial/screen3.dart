@@ -21,46 +21,6 @@ class _Screen3State extends State<Screen3> {
 
   @override
   Widget build(BuildContext context) {
-    // final List<Widget> imageSliders = imgList
-    // !.map((item) => Container(
-    //   child:
-    //   Image.asset(
-    //     item,
-    //     fit: BoxFit.cover,
-    //     // width: 300,
-    //   ),
-      // Positioned(
-      //   bottom: 0.0,
-      //   left: 0.0,
-      //   right: 0.0,
-      //   child: Container(
-      //     decoration: BoxDecoration(
-      //       gradient: LinearGradient(
-      //         colors: [
-      //           Color.fromARGB(200, 0, 0, 0),
-      //           Color.fromARGB(0, 0, 0, 0),
-      //         ],
-      //         begin: Alignment.bottomCenter,
-      //         end: Alignment.topCenter,
-      //       ),
-      //     ),
-      //     padding: EdgeInsets.symmetric(
-      //       horizontal: 20,
-      //       vertical: 10,
-      //     ),
-      //     child: Text(
-      //       'No. ${widget.imgList!.indexOf(item)} image',
-      //       style: TextStyle(
-      //         color: Colors.white,
-      //         fontSize: 20.0,
-      //         fontWeight: FontWeight.bold,
-      //       ),
-      //     ),
-      //   ),
-      // ),
-
-    // ))
-    //     .toList();
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -76,43 +36,28 @@ class _Screen3State extends State<Screen3> {
                     maxLines: 1,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 30,
+                      fontSize: 20,
                       color: Bluecolor,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
               ),
-              Container(
-                width: MediaQuery.of(context).size.width*0.35,
-                height: MediaQuery.of(context).size.height *0.35,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    fit: BoxFit.fill,
-                    image: AssetImage("assets/screeen3-1.png",),
+              Padding(
+                padding: const EdgeInsets.only(left: 60),
+                child: Container(
+                  width: MediaQuery.of(context).size.width*0.60,
+                  height: MediaQuery.of(context).size.height *0.30,
+                  decoration: BoxDecoration(
+                    // color: Colors.purple,
+                    image: DecorationImage(
+                      fit: BoxFit.fill,
+                      image: AssetImage("assets/screeen3-1.png",),
+                    ),
                   ),
                 ),
               ),
-              // CarouselSlider(
-              //   items: imageSliders,
-              //   options: CarouselOptions(
-              //       autoPlay: true,
-              //       // enlargeCenterPage: true,
-              //       aspectRatio: 2.0,
-              //       onPageChanged: (index, reason) {
-              //         setState(() {
-              //           // _current == widget!.imgList!.length ?  _current = 1 : _current++;
-              //           _current = index+1;
-              //         });
-              //         print('this is current$_current');
-              //       }),
-              // ),
-              // // SizedBox(
-              //   height: 40,
-              // ),
               Column(
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                // crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -164,7 +109,7 @@ class _Screen3State extends State<Screen3> {
                           ),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _current == index
+                            color: _current == index+1
                                 ? Color.fromRGBO(255, 195, 0, 0.9)
                                 : Color.fromRGBO(0, 0, 0, 0.4),
                           ),

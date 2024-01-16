@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:goroomy/Constants/colors.dart';
-import 'package:goroomy/Custom/text.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import '../../Custom/Button1.dart';
-import '../../Custom/couraselslider.dart';
 class Screen2 extends StatefulWidget {
   const Screen2({super.key});
 
@@ -21,46 +17,6 @@ class _Screen2State extends State<Screen2> {
 
   @override
   Widget build(BuildContext context) {
-    // final List<Widget> imageSliders = imgList
-    // !.map((item) => Container(
-    //   child:
-    //   Image.asset(
-    //     item,
-    //     fit: BoxFit.cover,
-    //     // width: 300,
-    //   ),
-    //   // Positioned(
-    //   //   bottom: 0.0,
-    //   //   left: 0.0,
-    //   //   right: 0.0,
-    //   //   child: Container(
-    //   //     decoration: BoxDecoration(
-    //   //       gradient: LinearGradient(
-    //   //         colors: [
-    //   //           Color.fromARGB(200, 0, 0, 0),
-    //   //           Color.fromARGB(0, 0, 0, 0),
-    //   //         ],
-    //   //         begin: Alignment.bottomCenter,
-    //   //         end: Alignment.topCenter,
-    //   //       ),
-    //   //     ),
-    //   //     padding: EdgeInsets.symmetric(
-    //   //       horizontal: 20,
-    //   //       vertical: 10,
-    //   //     ),
-    //   //     child: Text(
-    //   //       'No. ${widget.imgList!.indexOf(item)} image',
-    //   //       style: TextStyle(
-    //   //         color: Colors.white,
-    //   //         fontSize: 20.0,
-    //   //         fontWeight: FontWeight.bold,
-    //   //       ),
-    //   //     ),
-    //   //   ),
-    //   // ),
-    //
-    // ))
-    //     .toList();
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -76,7 +32,7 @@ class _Screen2State extends State<Screen2> {
                     maxLines: 1,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 30,
+                      fontSize: 20,
                       color: Bluecolor,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -84,8 +40,8 @@ class _Screen2State extends State<Screen2> {
                 ),
               ),
               Container(
-                width: MediaQuery.of(context).size.width*0.35,
-                height: MediaQuery.of(context).size.height *0.35,
+                width: MediaQuery.of(context).size.width*0.60,
+                height: MediaQuery.of(context).size.height *0.30,
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     fit: BoxFit.fill,
@@ -93,23 +49,6 @@ class _Screen2State extends State<Screen2> {
                   ),
                 ),
               ),
-              // CarouselSlider(
-              //   items: imageSliders,
-              //   options: CarouselOptions(
-              //       autoPlay: true,
-              //       // enlargeCenterPage: true,
-              //       aspectRatio: 2.0,
-              //       onPageChanged: (index, reason) {
-              //         setState(() {
-              //           // _current == widget!.imgList!.length ?  _current = 1 : _current++;
-              //           _current = index+1;
-              //         });
-              //         print('this is current$_current');
-              //       }),
-              // ),
-              // SizedBox(
-              //   height: 40,
-              // ),
               Column(
                 children: [
                   Row(
@@ -146,8 +85,6 @@ class _Screen2State extends State<Screen2> {
                   ),),
                 ],
               ),
-             // Icon(Icons.calendar_month, size: 200,),
-             //  CarouselWithDotsPage(imgList: imgList),
               Container(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -156,6 +93,7 @@ class _Screen2State extends State<Screen2> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children:imgList!.map((url) {
                         int index = imgList!.indexOf(url);
+                        print("theindex${index}");
                         return Container(
                           width: 7,
                           height: 7,

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:goroomy/Constants/colors.dart';
-import 'package:goroomy/Custom/text.dart';
 
 import '../../Custom/Button1.dart';
 class Screen1 extends StatefulWidget {
@@ -76,20 +74,6 @@ class _Screen1State extends State<Screen1> {
                ],
              ),
            ),
-            // CachedNetworkImage(
-            //   imageUrl: "https://cdn.pixabay.com/photo/2020/02/15/14/33/network-4851119_640.jpg",
-            //   imageBuilder: (context, imageProvider) => Container(
-            //     decoration: BoxDecoration(
-            //       image: DecorationImage(
-            //           image: imageProvider,
-            //           fit: BoxFit.cover,
-            //           colorFilter:
-            //           ColorFilter.mode(Colors.red, BlendMode.colorBurn)),
-            //     ),
-            //   ),
-            //   placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-            //   errorWidget: (context, url, error) => Icon(Icons.error),
-            // ),
           ],
         ),
       ),

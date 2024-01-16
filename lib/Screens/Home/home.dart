@@ -1,83 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:goroomy/Constants/colors.dart';
-import 'package:goroomy/Custom/text.dart';
-// class HomeScreen extends StatefulWidget {
-//   const HomeScreen({super.key});
-//
-//   @override
-//   State<HomeScreen> createState() => _HomeScreenState();
-// }
-//
-// class _HomeScreenState extends State<HomeScreen> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Bluecolor,
-// automaticallyImplyLeading: false,
-// centerTitle: true,
-// title: Text('Goroomy.com',
-// style: TextStyle(
-//   fontSize: 24,
-//   color: Colors.white,
-//   fontWeight: FontWeight.bold,
-//   fontFamily: "Manrope"
-// ),),
-//     actions: [
-// IconButton( icon:ImageIcon(
-//   AssetImage('assets/home-1.png'),
-// ),
-// onPressed: (){},)
-//     ],
-//       ),
-//       body: Container(
-//         width: MediaQuery.of(context).size.width,
-//         height:  MediaQuery.of(context).size.height *0.13,
-//         color: Colors.blueGrey,
-//         child: Padding(
-//           padding: EdgeInsets.fromLTRB(40, 10, 40, 0),
-//           child: Column(
-//             children: [
-//               Text('Book rooms for shorter, cheaper stays that are overnight.'),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.end,
-//                 children: [
-//                   // Spacer(),
-//                   InkWell(
-//                       child: Text('Learnmore..', style: TextStyle(
-//                         color: Bluecolor,
-//                         fontSize: 12,
-//                       ),),
-//                     onTap: (){},
-//                   )
-//                 ],
-//               ),
-//               SizedBox(
-//                 height: 20,
-//               ),
-//               Container(
-//                 width: MediaQuery.of(context).size.width,
-//                 color: Colors.red,
-//                 child: Text('dfasdfads'),
-//               ),
-//             ],
-//           ),
-//         ),
-//       )
-//       // Padding(
-//       //   padding: EdgeInsets.fromLTRB(40, 20, 40, 0),
-//       //   child: Column(
-//       //     mainAxisAlignment: MainAxisAlignment.start,
-//       //     children: [
-//       //       Text('dfsafa')
-//       //     ],
-//       //   ),
-//       // ),
-//     );
-//   }
-// }
-import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
+var userLat;
+var userLng;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -87,19 +17,42 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  TextEditingController _currentPlaceController = TextEditingController();
+  bool field = true;
+  List<LatLng> polylineCoordinates = [];
+  LocationPermission? permission;
+  Position? _curentPosition;
+  String? _curentAddress;
+  int Rooms = 0;
+  int Children = 0;
+  int Adult = 0;
+  String? cityName;
+  var selectedLat;
+  var selectedLng;
+  String? selectedDatewithoutTime;
+  final List<String> cityItems = [
+    'Lahore',
+    'Islamabad',
+    'Karachi',
+    'Multan',
+  ];
   DateTime? selectedDate;
   TimeOfDay selectedTime = TimeOfDay.now();
-  List<String> options = <String>['1 Room 2 adults', 'Two', 'Three', 'Four'];
-  String dropdownValue = '1 Room 2 adults';
+  dynamic? selectedValue;
   final formmater = DateFormat.yMd();
   void _datePicker() async {
     final now = DateTime.now();
-    final first = DateTime(now.year - 1, now.month, now.day);
+    final first = DateTime(now.year, now.month, now.day);
     final pickedDate = await showDatePicker(
-        context: context, initialDate: now, firstDate: first, lastDate: now);
+        context: context,
+        initialDate: now,
+        firstDate: first,
+        lastDate: DateTime(now.year + 1, now.day));
     setState(() {
       selectedDate = pickedDate;
+      selectedDatewithoutTime = '${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}';
     });
+    print('this is selectedDate ${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}');
   }
 
   Future<void> _selectTime(BuildContext context) async {
@@ -110,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (BuildContext? context, Widget? child) {
           return MediaQuery(
             data:
-                MediaQuery.of(context!).copyWith(alwaysUse24HourFormat: false),
+            MediaQuery.of(context!).copyWith(alwaysUse24HourFormat: false),
             child: child!,
           );
         });
@@ -120,13 +73,67 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedTime = picked_s;
       });
   }
+  Future _getCurrentLocation() async {
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      await Geolocator.openLocationSettings();
+      Fluttertoast.showToast(msg: "Location permissions are  denind");
+      if (permission == LocationPermission.deniedForever) {
+        Fluttertoast.showToast(
+            msg: "Location permissions are permanently denind");
+      }
+    }
+    Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        forceAndroidLocationManager: true)
+        .then((Position position) {
+      setState(() {
+        _curentPosition = position;
+        print(_curentPosition!.latitude);
+        userLat = _curentPosition!.latitude;
+        userLng = _curentPosition!.longitude;
+        print('+++${userLat} ${userLng}');
+        LatLng currentLatLong = LatLng(userLat, userLng);
+        _getAddressFromLatLon();
+      });
+    }).catchError((e) {
+      Fluttertoast.showToast(msg: e.toString());
+    });
+  }
 
+  _getAddressFromLatLon() async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+          _curentPosition!.latitude, _curentPosition!.longitude);
+
+      Placemark place = placemarks[0];
+      setState(() {
+        _curentAddress =
+        "${place.locality},${place.subLocality},${place.street}";
+        _currentPlaceController.text = _curentAddress!;
+        // cityName = '${place.locality}, ${place.country}';
+        print('this is current location$_curentAddress');
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+    }
+  }
+
+  // -----
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
-    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery
+        .of(context)
+        .size
+        .width;
+    var height = MediaQuery
+        .of(context)
+        .size
+        .height;
 
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Bluecolor,
           automaticallyImplyLeading: false,
@@ -141,8 +148,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           actions: [
             IconButton(
+              color: Colors.white,
               icon: ImageIcon(
-                AssetImage('assets/home-1.png'),
+                AssetImage('assets/home-1.png',),
               ),
               onPressed: () {},
             )
@@ -198,33 +206,74 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      height: 60,
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black, width: 1),
-                          borderRadius: BorderRadius.circular(40),
-                          color: Colors.white),
-                      // Add padding around the search bar
-                      // Use a Material design search bar
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Lahore',
-                          // Add a clear button to the search bar
-                          suffixIcon: IconButton(
-                            icon: Image.asset("assets/home-3.png",height: 25, ),
-                            onPressed: () {},
-                          ),
-                          // Add a search icon or button to the search bar
-                          prefixIcon: IconButton(
-                            icon: Image.asset("assets/home-2.png",height: 25, ),
-                            onPressed: () {
-                              // Perform the search here
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
+                    child: DropdownButtonFormField2<String>(
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(45),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: SizedBox(
+                            height: 25,
+                            child: Image.asset(
+                              'assets/home-2.png',
+                            ),
                           ),
                         ),
+                      ),
+                      hint: const Text(
+                        'City',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      items: cityItems
+                          .map((item) => DropdownMenuItem<String>(
+                        value: item,
+                        child: Text(
+                          item,
+                          style: const TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ))
+                          .toList(),
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Please select City.';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        setState(() {
+                          cityName = value;
+                        });
+                        print('this is SelectedValue ${cityName}');
+                      },
+                      onSaved: (value) {
+                        selectedValue = value.toString();
+                      },
+                      buttonStyleData: const ButtonStyleData(
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                        ),
+                      ),
+                      iconStyleData: const IconStyleData(
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.black45,
+                        ),
+                        iconSize: 24,
+                      ),
+                      dropdownStyleData: DropdownStyleData(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      menuItemStyleData: const MenuItemStyleData(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
                       ),
                     ),
                   ),
@@ -242,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 60,
                               decoration: BoxDecoration(
                                   border:
-                                      Border.all(color: Colors.black, width: 1),
+                                  Border.all(color: Colors.black, width: 1),
                                   borderRadius: BorderRadius.circular(40),
                                   color: Colors.white),
                               child: Padding(
@@ -281,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 60,
                               decoration: BoxDecoration(
                                   border:
-                                      Border.all(color: Colors.black, width: 1),
+                                  Border.all(color: Colors.black, width: 1),
                                   borderRadius: BorderRadius.circular(40),
                                   color: Colors.white),
                               child: Padding(
@@ -300,7 +349,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     Text(selectedTime == null
                                         ? 'Time'
-                                        : '${selectedTime.hour} : ${selectedTime.minute}')
+                                        : '${selectedTime.hour} : ${selectedTime
+                                        .minute}')
                                   ],
                                 ),
                               ),
@@ -312,100 +362,70 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      width: width * 0.82,
-                      height: 60,
-                      decoration: BoxDecoration(
+                    child: GestureDetector(
+                      onTap: () {
+                        // For showing modal bottom sheet
+                        showSheet(context);
+                      },
+                      child: Container(
+                        width: width * 0.82,
+                        height: 60,
+                        decoration: BoxDecoration(
                           border: Border.all(color: Colors.black, width: 1),
                           borderRadius: BorderRadius.circular(40),
-                          color: Colors.white),
-                      child: Center(
-                        child: DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            prefixIcon:  Image.asset("assets/home-6.png", height:10, ),
+                          color: Colors.white,
+                        ),
+                        child: Center(
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 10),
+                                child: SizedBox(
+                                  height: 25,
+                                  child: Image.asset(
+                                    'assets/home-6.png',
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Text('rooms:${Rooms} adults: ${Adult}, children: ${Children}'),
+                              Spacer(),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Icon(Icons.keyboard_arrow_down),
+                              ),
+                            ],
                           ),
-                          hint: Text('1 room 2 adults'),
-                          items: <String>[
-                            '1 Room 2 adults',
-                            'Two',
-                            'Three',
-                            'Four'
-                          ].map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (_) {},
                         ),
                       ),
-                      // DropdownButton<String>(
-                      //   value: dropdownValue,
-                      //   onChanged: (String? value) {
-                      //     setState(() {
-                      //       dropdownValue = value!;
-                      //     });
-                      //   },
-                      //   underline: const SizedBox(),
-                      //   isExpanded: true,
-                      //   style: const TextStyle(color: Colors.black),
-                      //
-                      //   dropdownColor: Colors.white,
-                      //   icon: const Icon(Icons.keyboard_arrow_down,
-                      //       color: Colors.black),
-                      //   selectedItemBuilder: (BuildContext context) {
-                      //     return options.map((String value) {
-                      //       return Align(
-                      //         alignment: Alignment.centerLeft,
-                      //         child: Text(
-                      //           dropdownValue,
-                      //         ),
-                      //       );
-                      //     }).toList();
-                      //   },
-                      //   items: options.map<DropdownMenuItem<String>>(
-                      //           (String value) {
-                      //         return DropdownMenuItem<String>(
-                      //           value: value,
-                      //           child: Text(value),
-                      //         );
-                      //       }).toList(),
-                      // ),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.start,
-                      //   children: [
-                      //         IconButton(
-                      //             onPressed: () {},
-                      //             icon: const Icon(Icons.person_2)),
-                      //
-                      //   ],
-                      // ),
                     ),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-
-                    //     Container(
-                    //       width: 200,
-                    //       decoration: BoxDecoration(
-                    //           color: Colors.blue,
-                    //           borderRadius: BorderRadius.circular(30)),
-                    //       padding:
-                    //       const EdgeInsets.symmetric(horizontal: 10),
-                    //       child:
-
-                    // )
-                    //   ],
-                    // )),
                   ),
+
                   SizedBox(
                     height: 20,
                   ),
+
                   Container(
                     width: width * 0.82,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        if(cityName=="" || cityName == null || selectedDate == null || Rooms == null || Rooms == 0 ){
+                          Fluttertoast.showToast(
+                              msg: "Fields cannot be empty",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              // timeInSecForIosWeb: 1,
+                              backgroundColor: Bluecolor,
+                              textColor: Colors.white,
+                              fontSize: 16.0
+                          );
+                        }else{
+                          Navigator.pushNamed(context, 'hotel_list_screen', arguments: {
+                            'Dateyime': selectedDatewithoutTime.toString(),
+                            'city': cityName.toString()
+                          });
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Bluecolor,
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -424,5 +444,139 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ));
+  }
+  void showSheet(context) {
+    var height = MediaQuery
+        .of(context)
+        .size
+        .height;
+    // Show a modal bottom sheet with the specified context and builder method.
+    showModalBottomSheet(context: context, builder: (BuildContext bc) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter ModalsetState ) {
+          print('Stateful builder settt');
+          return Container(
+            height: height * 0.5,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ListTile(
+                  // leading: Text('1'),
+                  title: Text("Rooms"),
+                  trailing: Wrap(
+                    spacing: 12, // space between two icons
+                    children: <Widget>[
+                      IconButton(onPressed: () {
+                        // ModalsetState(() {
+                        //   Rooms++;
+                        // });
+                        ModalsetState(() {
+                          Rooms++;
+                        });
+                        print('Rooms ${Rooms}');
+                      }, icon: Icon(Icons.add)),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+                        child: Text('${Rooms}',
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Bluecolor,
+                              fontWeight: FontWeight.w500
+                          ),),
+                      ),
+                      IconButton(onPressed: Rooms == 0 ? (){} :() {
+                        ModalsetState(() {
+                          Rooms--;
+                        });
+                        print('Rooms ${Rooms}');
+                      }, icon: Icon(Icons.remove)), // icon-2
+                    ],
+                  ),
+                ),
+                ListTile(
+                  // leading: Text('2'),
+                  title: Text("Adults"),
+                  trailing: Wrap(
+                    spacing: 12, // space between two icons
+                    children: <Widget>[
+                      IconButton(onPressed: () {
+                        ModalsetState(() {
+                          Adult++;
+                        });
+                        print('adult ${Adult}');
+                      }, icon: Icon(Icons.add)),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+                        child: Text('${Adult}',
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Bluecolor,
+                              fontWeight: FontWeight.w500
+                          ),),
+                      ),
+                      IconButton(
+                          onPressed: Adult == 0 ? (){} :() {
+                        ModalsetState(() {
+                          Adult--;
+                        });
+                        print('adult ${Adult}');
+                      }, icon: Icon(Icons.remove)), // icon-2
+                    ],
+                  ),
+                ),
+                ListTile(
+                  title: Text("Children"),
+                  trailing: Wrap(
+                    spacing: 12, // space between two icons
+                    children: <Widget>[
+                      IconButton(onPressed: () {
+                        ModalsetState(() {
+                          Children++;
+                        });
+                        print('children ${Children}');
+                      }, icon: Icon(Icons.add)),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+                        child: Text('${Children}',
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Bluecolor,
+                              fontWeight: FontWeight.w500
+                          ),),
+                      ),
+                      IconButton(
+                          onPressed:Children == 0 ? (){} :() {
+                        ModalsetState(() {
+                          Children--;
+                        });
+                        print('children ${Children}');
+                      }, icon: Icon(Icons.remove)),
+
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(onPressed: () {
+                      setState((){
+                      });
+                      Navigator.pop(context);
+                    }, child:
+                    Text('Select', style: TextStyle(
+                      color: Colors.white,
+                    ),),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Bluecolor
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    });
   }
 }
