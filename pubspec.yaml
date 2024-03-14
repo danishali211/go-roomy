@@ -49,6 +49,7 @@ dependencies:
   geolocator: ^10.1.0
   fluttertoast: ^8.2.4
   dropdown_button2: ^2.3.9
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:

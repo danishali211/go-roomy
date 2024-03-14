@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       onGenerateRoute: Routes.onGenerateRoutes,
       initialRoute: RoutesName.screen1,
       title: 'Flutter Demo',

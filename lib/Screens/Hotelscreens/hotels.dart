@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:goroomy/Constants/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:shimmer/shimmer.dart';
 class HotelScreen extends StatefulWidget {
   String? Dateyime;
   String? cityName;
@@ -12,8 +13,16 @@ class HotelScreen extends StatefulWidget {
 }
 
 class _HotelScreenState extends State<HotelScreen> {
+  late bool _loadingShimmer;
+
   @override
   void initState() {
+    _loadingShimmer = true;
+    Future.delayed(const Duration(seconds: 3), (){
+      setState(() {
+        _loadingShimmer = false;
+      });
+    });
     // TODO: implement initState
     super.initState();
   }
@@ -26,112 +35,220 @@ class _HotelScreenState extends State<HotelScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _appBar(AppBar().preferredSize.height),
-      body:
-      SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-          child: Column(
-            children: [
-              Container(
-                width: screenSize.width,
-                height: screenSize.height * 0.07,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: _loadingShimmer ?
+    Shimmer.fromColors(
+    baseColor: Colors.grey.shade300,
+    highlightColor: Colors.grey.shade100,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: Column(
+              children: [
+                Container(
+                  width: screenSize.width,
+                  height: screenSize.height * 0.07,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        child: Center(
+                          child: Row(
+                            children: [
+                              IconButton(icon: Icon(Icons.sort, color: Colors.grey,),
+                                onPressed: (){
+                                  print('back icon button');
+                                }, ),
+                              Text('Sort',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        child: Center(
+                          child: Row(
+                            children: [
+                              IconButton(icon: Icon(Icons.filter, color: Colors.grey,),
+                                onPressed: (){
+                                  print('back icon button');
+                                }, ),
+                              Text('Filter',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12
+                                ),
+                              ),
+
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        child: Center(
+                          child: Row(
+                            children: [
+                              IconButton(icon: Icon(Icons.map_outlined, color: Colors.grey,),
+                                onPressed: (){
+                                  print('back icon button');
+                                }, ),
+                              Text('Map',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                 SizedBox(
+                   height: 6,
+                 ),
+                 Container(
+                   width: screenSize.width,
+                   color: Colors.white,
+                   child: Text('21345'),
+                ),
+                Column(
                   children: [
                     Container(
-                      child: Center(
-                        child: Row(
-                          children: [
-                            IconButton(icon: Icon(Icons.sort, color: Colors.grey,),
-                              onPressed: (){
-                                print('back icon button');
-                              }, ),
-                            Text('Sort',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 12
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      child: Center(
-                        child: Row(
-                          children: [
-                            IconButton(icon: Icon(Icons.filter, color: Colors.grey,),
-                              onPressed: (){
-                                print('back icon button');
-                              }, ),
-                            Text('Filter',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 12
-                              ),
-                            ),
-
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      child: Center(
-                        child: Row(
-                          children: [
-                            IconButton(icon: Icon(Icons.map_outlined, color: Colors.grey,),
-                              onPressed: (){
-                                print('back icon button');
-                              }, ),
-                            Text('Map',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 12
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // List showing Hotels
+                      child: ListView.separated(
+                          physics: const ScrollPhysics(),
+                          separatorBuilder: (context, index) {
+                            return Divider();
+                          },
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemCount: 5,
+                          itemBuilder: (BuildContext context, int index) {
+                            // Card Widget
+                            return HotelCard(
+                               context, index , 'Helo'
+                            );
+                          }),
                     ),
                   ],
                 ),
-              ),
-               SizedBox(
-                 height: 6,
-               ),
-               Container(
-                 width: screenSize.width,
-                 color: Colors.white,
-                 child: Text('21345'),
-              ),
-              Column(
-                children: [
-                  Container(
-                    // List showing Hotels
-                    child: ListView.separated(
-                        physics: const ScrollPhysics(),
-                        separatorBuilder: (context, index) {
-                          return Divider();
-                        },
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        itemCount: 5,
-                        itemBuilder: (BuildContext context, int index) {
-                          // Card Widget
-                          return HotelCard(
-                             context, index , 'Helo'
-                          );
-                        }),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+      ) :  SingleChildScrollView(
+    child: Padding(
+    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+    child: Column(
+    children: [
+    Container(
+    width: screenSize.width,
+    height: screenSize.height * 0.07,
+    decoration: BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(12)),
+    child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+    Container(
+    child: Center(
+    child: Row(
+    children: [
+    IconButton(icon: Icon(Icons.sort, color: Colors.grey,),
+    onPressed: (){
+    print('back icon button');
+    }, ),
+    Text('Sort',
+    style: TextStyle(
+    color: Colors.black,
+    fontSize: 12
+    ),
+    ),
+    ],
+    ),
+    ),
+    ),
+    Container(
+    child: Center(
+    child: Row(
+    children: [
+    IconButton(icon: Icon(Icons.filter, color: Colors.grey,),
+    onPressed: (){
+    print('back icon button');
+    }, ),
+    Text('Filter',
+    style: TextStyle(
+    color: Colors.black,
+    fontSize: 12
+    ),
+    ),
+
+    ],
+    ),
+    ),
+    ),
+    Container(
+    child: Center(
+    child: Row(
+    children: [
+    IconButton(icon: Icon(Icons.map_outlined, color: Colors.grey,),
+    onPressed: (){
+    print('back icon button');
+    }, ),
+    Text('Map',
+    style: TextStyle(
+    color: Colors.black,
+    fontSize: 12
+    ),
+    ),
+    ],
+    ),
+    ),
+    ),
+    ],
+    ),
+    ),
+    SizedBox(
+    height: 6,
+    ),
+    Container(
+    width: screenSize.width,
+    color: Colors.white,
+    child: Text('21345'),
+    ),
+    Column(
+    children: [
+    Container(
+    // List showing Hotels
+    child: ListView.separated(
+    physics: const ScrollPhysics(),
+    separatorBuilder: (context, index) {
+    return Divider();
+    },
+    scrollDirection: Axis.vertical,
+    shrinkWrap: true,
+    itemCount: 5,
+    itemBuilder: (BuildContext context, int index) {
+    // Card Widget
+    return HotelCard(
+    context, index , 'Helo'
+    );
+    }),
+    ),
+    ],
+    ),
+    ],
+    ),
+    ),
+    ),
     );
   }
 

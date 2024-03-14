@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? cityName;
   var selectedLat;
   var selectedLng;
+  String? selectedDatewithoutTime2;
   String? selectedDatewithoutTime;
   final List<String> cityItems = [
     'Lahore',
@@ -40,9 +41,66 @@ class _HomeScreenState extends State<HomeScreen> {
   TimeOfDay selectedTime = TimeOfDay.now();
   dynamic? selectedValue;
   final formmater = DateFormat.yMd();
+  // void _datePicker() async {
+  //   final now = DateTime.now();
+  //   final first = DateTime(now.year, now.month, now.day);
+  //   final pickedDate = await showDatePicker(
+  //     context: context,
+  //     initialDate: now,
+  //     firstDate: first,
+  //     lastDate: DateTime(now.year + 1, now.month, now.day),
+  //   );
+  //
+  //   if (pickedDate != null && pickedDate.isAfter(now)) {
+  //     setState(() {
+  //       selectedDate = pickedDate;
+  //       selectedDatewithoutTime =
+  //       '${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}';
+  //     });
+  //     print(
+  //         'Selected Date: ${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}');
+  //   } else {
+  //     print('Invalid or earlier date selected.');
+  //   }
+  // }
+  //
+  // Future<void> _selectTime(BuildContext context) async {
+  //   print('In time picker');
+  //   final TimeOfDay? picked_s = await showTimePicker(
+  //     context: context,
+  //     initialTime: selectedTime,
+  //     builder: (BuildContext? context, Widget? child) {
+  //       return MediaQuery(
+  //         data:
+  //         MediaQuery.of(context!).copyWith(alwaysUse24HourFormat: false),
+  //         child: child!,
+  //       );
+  //     },
+  //   );
+  //
+  //   if (picked_s != null &&
+  //       _convertToDateTime(picked_s).isAfter(DateTime.now()) &&
+  //       picked_s != selectedTime) {
+  //     setState(() {
+  //       selectedTime = picked_s;
+  //     });
+  //   } else {
+  //     print('Invalid or earlier time selected.');
+  //   }
+  // }
+  //
+  // DateTime _convertToDateTime(TimeOfDay time) {
+  //   final now = DateTime.now();
+  //   return DateTime(now.year, now.month, now.day, time.hour, time.minute);
+  // }
   void _datePicker() async {
     final now = DateTime.now();
     final first = DateTime(now.year, now.month, now.day);
+    print('this is first ${first}');
+    setState(() {
+      selectedDatewithoutTime2  = '${first!.day}-${first!.month}-${first!.year}';
+      print('Newselected Date ${selectedDatewithoutTime2}');
+    });
     final pickedDate = await showDatePicker(
         context: context,
         initialDate: now,
@@ -54,25 +112,89 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     print('this is selectedDate ${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}');
   }
-
+  //
   Future<void> _selectTime(BuildContext context) async {
+    final now = DateTime.now();
+    final first = DateTime(now.year, now.month, now.day);
+    print('this is first ${first}');
+    setState(() {
+      selectedDatewithoutTime2 = '${first.day}-${first.month}-${first.year}';
+      print('New selected Date ${selectedDatewithoutTime2}');
+    });
     print('In time picker');
     final TimeOfDay? picked_s = await showTimePicker(
-        context: context,
-        initialTime: selectedTime,
-        builder: (BuildContext? context, Widget? child) {
-          return MediaQuery(
-            data:
-            MediaQuery.of(context!).copyWith(alwaysUse24HourFormat: false),
-            child: child!,
-          );
-        });
+      context: context,
+      initialTime: selectedTime,
+      builder: (BuildContext? context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context!).copyWith(alwaysUse24HourFormat: false),
+          child: child!,
+        );
+      },
+    );
+    if (selectedDate == null) {
+      Fluttertoast.showToast(
+        msg: 'Select Date First',
+        backgroundColor: Bluecolor,
+      );
+    } else {
+      if (picked_s != null) {
+        final selectedDateTime = DateTime(
+          selectedDate!.year,
+          selectedDate!.month,
+          selectedDate!.day,
+          picked_s.hour,
+          picked_s.minute,
+        );
 
-    if (picked_s != null && picked_s != selectedTime)
-      setState(() {
-        selectedTime = picked_s;
-      });
+        if (selectedDateTime.isAfter(now) ||
+            selectedDatewithoutTime != selectedDatewithoutTime2) {
+          setState(() {
+            selectedTime = picked_s;
+          });
+        }else{
+          Fluttertoast.showToast(
+            msg: 'Select Valid Time',
+            backgroundColor: Bluecolor,
+          );
+          setState(() {
+            selectedTime = TimeOfDay.now();
+          });
+        }
+      }
+    }
   }
+  // Future<void> _selectTime(BuildContext context) async {
+  //   final now = DateTime.now();
+  //   final first = DateTime(now.year, now.month, now.day);
+  //   print('this is first ${first}');
+  //   setState(() {
+  //     selectedDatewithoutTime2 = '${first!.day}-${first!.month}-${first!.year}';
+  //     print('Newselected Date ${selectedDatewithoutTime2}');
+  //   });
+  //   print('In time picker');
+  //   final TimeOfDay? picked_s = await showTimePicker(
+  //       context: context,
+  //       initialTime: selectedTime,
+  //       builder: (BuildContext? context, Widget? child) {
+  //         return MediaQuery(
+  //           data:
+  //           MediaQuery.of(context!).copyWith(alwaysUse24HourFormat: false),
+  //           child: child!,
+  //         );
+  //       });
+  //
+  //   if (picked_s != null && picked_s != selectedTime &&
+  //       selectedDatewithoutTime != selectedDatewithoutTime2) {
+  //     setState(() {
+  //       selectedTime = picked_s;
+  //     });
+  //   } else {
+  //     Fluttertoast.showToast(
+  //         msg: 'Kindly Select valid date', backgroundColor: Bluecolor);
+  //   }
+  // }
+
   Future _getCurrentLocation() async {
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -95,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
         userLng = _curentPosition!.longitude;
         print('+++${userLat} ${userLng}');
         LatLng currentLatLong = LatLng(userLat, userLng);
-        _getAddressFromLatLon();
+        // _getAddressFromLatLon();
       });
     }).catchError((e) {
       Fluttertoast.showToast(msg: e.toString());
@@ -119,7 +241,15 @@ class _HomeScreenState extends State<HomeScreen> {
       Fluttertoast.showToast(msg: e.toString());
     }
   }
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    setState(() {
+      Adult = 1;
+      Rooms =1;
+    });
+    super.initState();
+  }
   // -----
   @override
   Widget build(BuildContext context) {
@@ -446,131 +576,159 @@ class _HomeScreenState extends State<HomeScreen> {
         ));
   }
   void showSheet(context) {
-    var height = MediaQuery
-        .of(context)
-        .size
-        .height;
-    // Show a modal bottom sheet with the specified context and builder method.
+    var height = MediaQuery.of(context).size.height;
+
     showModalBottomSheet(context: context, builder: (BuildContext bc) {
       return StatefulBuilder(
-        builder: (BuildContext context, StateSetter ModalsetState ) {
-          print('Stateful builder settt');
+        builder: (BuildContext context, StateSetter ModalsetState) {
           return Container(
-            height: height * 0.5,
+            padding: EdgeInsets.all(16.0),
+            height: height * 0.4, // Adjusted height
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ListTile(
-                  // leading: Text('1'),
-                  title: Text("Rooms"),
+                  title: Text(
+                    "Rooms",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  leading: Icon(
+                    Icons.hotel,
+                    color: Bluecolor,
+                  ),
                   trailing: Wrap(
-                    spacing: 12, // space between two icons
+                    spacing: 12,
                     children: <Widget>[
-                      IconButton(onPressed: () {
-                        // ModalsetState(() {
-                        //   Rooms++;
-                        // });
-                        ModalsetState(() {
-                          Rooms++;
-                        });
-                        print('Rooms ${Rooms}');
-                      }, icon: Icon(Icons.add)),
+                      IconButton(
+                        onPressed: () {
+                          ModalsetState(() {
+                            Rooms++;
+                          });
+                          print('Rooms ${Rooms}');
+                        },
+                        icon: Icon(Icons.add),
+                        color: Bluecolor,
+                      ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-                        child: Text('${Rooms}',
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Bluecolor,
-                              fontWeight: FontWeight.w500
-                          ),),
+                        child: Text(
+                          '$Rooms',
+                          style: TextStyle(fontSize: 18, color: Bluecolor, fontWeight: FontWeight.w500),
+                        ),
                       ),
-                      IconButton(onPressed: Rooms == 0 ? (){} :() {
-                        ModalsetState(() {
-                          Rooms--;
-                        });
-                        print('Rooms ${Rooms}');
-                      }, icon: Icon(Icons.remove)), // icon-2
+                      IconButton(
+                        onPressed: () {
+                          if (Rooms > 1) {
+                            ModalsetState(() {
+                              Rooms--;
+                            });
+                            print('Rooms ${Rooms}');
+                          }
+                        },
+                        icon: Icon(Icons.remove),
+                        color: Rooms <= 1 ? Colors.grey : Bluecolor,
+                      ),
                     ],
                   ),
                 ),
                 ListTile(
-                  // leading: Text('2'),
-                  title: Text("Adults"),
+                  title: Text(
+                    "Adults",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  leading: Icon(
+                    Icons.person,
+                    color:Bluecolor,
+                  ),
                   trailing: Wrap(
-                    spacing: 12, // space between two icons
+                    spacing: 12,
                     children: <Widget>[
-                      IconButton(onPressed: () {
-                        ModalsetState(() {
-                          Adult++;
-                        });
-                        print('adult ${Adult}');
-                      }, icon: Icon(Icons.add)),
+                      IconButton(
+                        onPressed: () {
+                          ModalsetState(() {
+                            Adult++;
+                          });
+                          print('Adults ${Adult}');
+                        },
+                        icon: Icon(Icons.add),
+                        color: Bluecolor,
+                      ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-                        child: Text('${Adult}',
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Bluecolor,
-                              fontWeight: FontWeight.w500
-                          ),),
+                        child: Text(
+                          '$Adult',
+                          style: TextStyle(fontSize: 18, color: Bluecolor, fontWeight: FontWeight.w500),
+                        ),
                       ),
                       IconButton(
-                          onPressed: Adult == 0 ? (){} :() {
-                        ModalsetState(() {
-                          Adult--;
-                        });
-                        print('adult ${Adult}');
-                      }, icon: Icon(Icons.remove)), // icon-2
+                        onPressed: () {
+                          if (Adult > 1) {
+                            ModalsetState(() {
+                              Adult--;
+                            });
+                            print('Adults ${Adult}');
+                          }
+                        },
+                        icon: Icon(Icons.remove),
+                        color: Adult <= 1 ? Colors.grey : Bluecolor,
+                      ),
                     ],
                   ),
                 ),
                 ListTile(
-                  title: Text("Children"),
+                  title: Text(
+                    "Children",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  leading: Icon(
+                    Icons.child_care,
+                    color: Bluecolor,
+                  ),
                   trailing: Wrap(
-                    spacing: 12, // space between two icons
+                    spacing: 12,
                     children: <Widget>[
-                      IconButton(onPressed: () {
-                        ModalsetState(() {
-                          Children++;
-                        });
-                        print('children ${Children}');
-                      }, icon: Icon(Icons.add)),
+                      IconButton(
+                        onPressed: () {
+                          ModalsetState(() {
+                            Children++;
+                          });
+                          print('Children ${Children}');
+                        },
+                        icon: Icon(Icons.add),
+                        color: Bluecolor,
+                      ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-                        child: Text('${Children}',
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Bluecolor,
-                              fontWeight: FontWeight.w500
-                          ),),
+                        child: Text(
+                          '$Children',
+                          style: TextStyle(fontSize: 18, color: Bluecolor, fontWeight: FontWeight.w500),
+                        ),
                       ),
                       IconButton(
-                          onPressed:Children == 0 ? (){} :() {
-                        ModalsetState(() {
-                          Children--;
-                        });
-                        print('children ${Children}');
-                      }, icon: Icon(Icons.remove)),
-
+                        onPressed: () {
+                          if (Children > 0) {
+                            ModalsetState(() {
+                              Children--;
+                            });
+                            print('Children ${Children}');
+                          }
+                        },
+                        icon: Icon(Icons.remove),
+                        color: Children <= 0 ? Colors.grey : Bluecolor,
+                      ),
                     ],
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(onPressed: () {
-                      setState((){
-                      });
-                      Navigator.pop(context);
-                    }, child:
-                    Text('Select', style: TextStyle(
-                      color: Colors.white,
-                    ),),
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Bluecolor
-                      ),
-                    ),
-                  ],
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {});
+                    Navigator.pop(context);
+                  },
+                  child: Text('Select', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Bluecolor,
+                    elevation: 8.0, // Increased elevation
+                  ),
                 ),
               ],
             ),
@@ -579,4 +737,627 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     });
   }
+
+// void showSheet(context) {
+  //   var height = MediaQuery.of(context).size.height;
+  //
+  //   showModalBottomSheet(context: context, builder: (BuildContext bc) {
+  //     return StatefulBuilder(
+  //       builder: (BuildContext context, StateSetter ModalsetState) {
+  //         return Container(
+  //           padding: EdgeInsets.all(16.0),
+  //           height: height * 0.7, // Adjusted height
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //             children: [
+  //               buildListTile("Rooms", Icons.hotel, Rooms, () {
+  //                 ModalsetState(() {
+  //                   Rooms++;
+  //                 });
+  //                 print('Rooms ${Rooms}');
+  //               }, () {
+  //                 if (Rooms > 1) {
+  //                   ModalsetState(() {
+  //                     Rooms--;
+  //                   });
+  //                   print('Rooms ${Rooms}');
+  //                 }
+  //               }),
+  //               buildListTile("Adults", Icons.person, Adult, () {
+  //                 ModalsetState(() {
+  //                   Adult++;
+  //                 });
+  //                 print('Adults ${Adult}');
+  //               }, () {
+  //                 if (Adult > 1) {
+  //                   ModalsetState(() {
+  //                     Adult--;
+  //                   });
+  //                   print('Adults ${Adult}');
+  //                 }
+  //               }),
+  //               buildListTile("Children", Icons.child_care, Children, addFunction() {
+  //                 ModalsetState(() {
+  //                   Children++;
+  //                 });
+  //                 print('Children ${Children}');
+  //               }, () {
+  //                 if (Children > 0) {
+  //                   ModalsetState(() {
+  //                     Children--;
+  //                   });
+  //                   print('Children ${Children}');
+  //                 }
+  //               }),
+  //               ElevatedButton(
+  //                 onPressed: () {
+  //                   setState(() {});
+  //                   Navigator.pop(context);
+  //                 },
+  //                 child: Text('Select', style: TextStyle(color: Colors.white)),
+  //                 style: ElevatedButton.styleFrom(
+  //                   backgroundColor: Colors.blue,
+  //                   elevation: 8.0, // Increased elevation
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
+  //
+  // Widget buildListTile(String title, IconData icon, int value, Function? addFunction, Function? removeFunction) {
+  //   return ListTile(
+  //     title: Text(
+  //       title,
+  //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+  //     ),
+  //     leading: Icon(
+  //       icon,
+  //       color: Colors.blue,
+  //     ),
+  //     trailing: Wrap(
+  //       spacing: 12,
+  //       children: <Widget>[
+  //         IconButton(
+  //           onPressed: addFunction,
+  //           icon: Icon(Icons.add),
+  //           color: Colors.blue,
+  //         ),
+  //         Padding(
+  //           padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+  //           child: Text(
+  //             '$value',
+  //             style: TextStyle(fontSize: 18, color: Colors.blue, fontWeight: FontWeight.w500),
+  //           ),
+  //         ),
+  //         IconButton(
+  //           onPressed: removeFunction,
+  //           icon: Icon(Icons.remove),
+  //           color: value <= 1 ? Colors.grey : Colors.blue,
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+// void showSheet(context) {
+  //   var height = MediaQuery
+  //       .of(context)
+  //       .size
+  //       .height;
+  //
+  //   // Show a modal bottom sheet with the specified context and builder method.
+  //   showModalBottomSheet(context: context, builder: (BuildContext bc) {
+  //     return StatefulBuilder(
+  //       builder: (BuildContext context, StateSetter ModalsetState) {
+  //         print('Stateful builder settt');
+  //         return Container(
+  //           height: height * 0.6, // Adjusted height
+  //           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24), // Added padding
+  //
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //             children: [
+  //               ListTile(
+  //                 title: Text("Rooms"),
+  //                 trailing: Wrap(
+  //                   spacing: 12,
+  //                   children: <Widget>[
+  //                     IconButton(onPressed: () {
+  //                       ModalsetState(() {
+  //                         Rooms++;
+  //                       });
+  //                       print('Rooms ${Rooms}');
+  //                     }, icon: Icon(Icons.add)),
+  //                     Padding(
+  //                       padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+  //                       child: Text(
+  //                         '${Rooms}',
+  //                         style: TextStyle(
+  //                             fontSize: 18,
+  //                             color: Bluecolor,
+  //                             fontWeight: FontWeight.w500
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     IconButton(onPressed: Rooms == 1 ? () {} : () {
+  //                       ModalsetState(() {
+  //                         Rooms--;
+  //                       });
+  //                       print('Rooms ${Rooms}');
+  //                     }, icon: Icon(Icons.remove)),
+  //                   ],
+  //                 ),
+  //               ),
+  //               ListTile(
+  //                 title: Text("Adults"),
+  //                 trailing: Wrap(
+  //                   spacing: 12,
+  //                   children: <Widget>[
+  //                     IconButton(onPressed: () {
+  //                       ModalsetState(() {
+  //                         Adult++;
+  //                       });
+  //                       print('adult ${Adult}');
+  //                     }, icon: Icon(Icons.add)),
+  //                     Padding(
+  //                       padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+  //                       child: Text(
+  //                         '${Adult}',
+  //                         style: TextStyle(
+  //                             fontSize: 18,
+  //                             color: Bluecolor,
+  //                             fontWeight: FontWeight.w500
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     IconButton(onPressed: Adult == 1 ? () {} : () {
+  //                       ModalsetState(() {
+  //                         Adult--;
+  //                       });
+  //                       print('adult ${Adult}');
+  //                     }, icon: Icon(Icons.remove)),
+  //                   ],
+  //                 ),
+  //               ),
+  //               ListTile(
+  //                 title: Text("Children"),
+  //                 trailing: Wrap(
+  //                   spacing: 12,
+  //                   children: <Widget>[
+  //                     IconButton(onPressed: () {
+  //                       ModalsetState(() {
+  //                         Children++;
+  //                       });
+  //                       print('children ${Children}');
+  //                     }, icon: Icon(Icons.add)),
+  //                     Padding(
+  //                       padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+  //                       child: Text(
+  //                         '${Children}',
+  //                         style: TextStyle(
+  //                             fontSize: 18,
+  //                             color: Bluecolor,
+  //                             fontWeight: FontWeight.w500
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     IconButton(
+  //                         onPressed: Children == 0 ? () {} : () {
+  //                           ModalsetState(() {
+  //                             Children--;
+  //                           });
+  //                           print('children ${Children}');
+  //                         },
+  //                         icon: Icon(Icons.remove)),
+  //                   ],
+  //                 ),
+  //               ),
+  //               SizedBox(height: 16), // Adjusted spacing
+  //               ElevatedButton(
+  //                 onPressed: () {
+  //                   setState(() {});
+  //                   Navigator.pop(context);
+  //                 },
+  //                 child: Padding(
+  //                   padding: const EdgeInsets.symmetric(vertical: 16), // Extended button height
+  //                   child: Text(
+  //                     'Select',
+  //                     style: TextStyle(
+  //                       color: Colors.white,
+  //                       fontSize: 18, // Adjusted font size
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 style: ElevatedButton.styleFrom(
+  //                   backgroundColor: Bluecolor,
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(20), // Rounded edges
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
+
+//   void showSheet(context) {
+//     var height = MediaQuery
+//         .of(context)
+//         .size
+//         .height;
+//
+//     // Show a modal bottom sheet with the specified context and builder method.
+//     showModalBottomSheet(context: context, builder: (BuildContext bc) {
+//       return StatefulBuilder(
+//         builder: (BuildContext context, StateSetter ModalsetState) {
+//           print('Stateful builder settt');
+//           return Container(
+//             height: height * 0.6, // Adjusted height
+//             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24), // Added padding
+//
+//             child: Column(
+//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//               children: [
+//                 ListTile(
+//                   title: Text("Rooms"),
+//                   trailing: Wrap(
+//                     spacing: 12,
+//                     children: <Widget>[
+//                       IconButton(onPressed: () {
+//                         ModalsetState(() {
+//                           Rooms++;
+//                         });
+//                         print('Rooms ${Rooms}');
+//                       }, icon: Icon(Icons.add)),
+//                       Padding(
+//                         padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+//                         child: Text(
+//                           '${Rooms}',
+//                           style: TextStyle(
+//                               fontSize: 18,
+//                               color: Bluecolor,
+//                               fontWeight: FontWeight.w500
+//                           ),
+//                         ),
+//                       ),
+//                       IconButton(onPressed: Rooms == 1 ? () {} : () {
+//                         ModalsetState(() {
+//                           Rooms--;
+//                         });
+//                         print('Rooms ${Rooms}');
+//                       }, icon: Icon(Icons.remove)),
+//                     ],
+//                   ),
+//                 ),
+//                 ListTile(
+//                   title: Text("Adults"),
+//                   trailing: Wrap(
+//                     spacing: 12,
+//                     children: <Widget>[
+//                       IconButton(onPressed: () {
+//                         ModalsetState(() {
+//                           Adult++;
+//                         });
+//                         print('adult ${Adult}');
+//                       }, icon: Icon(Icons.add)),
+//                       Padding(
+//                         padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+//                         child: Text(
+//                           '${Adult}',
+//                           style: TextStyle(
+//                               fontSize: 18,
+//                               color: Bluecolor,
+//                               fontWeight: FontWeight.w500
+//                           ),
+//                         ),
+//                       ),
+//                       IconButton(onPressed: Adult == 1 ? () {} : () {
+//                         ModalsetState(() {
+//                           Adult--;
+//                         });
+//                         print('adult ${Adult}');
+//                       }, icon: Icon(Icons.remove)),
+//                     ],
+//                   ),
+//                 ),
+//                 ListTile(
+//                   title: Text("Children"),
+//                   trailing: Wrap(
+//                     spacing: 12,
+//                     children: <Widget>[
+//                       IconButton(onPressed: () {
+//                         ModalsetState(() {
+//                           Children++;
+//                         });
+//                         print('children ${Children}');
+//                       }, icon: Icon(Icons.add)),
+//                       Padding(
+//                         padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+//                         child: Text(
+//                           '${Children}',
+//                           style: TextStyle(
+//                               fontSize: 18,
+//                               color: Bluecolor,
+//                               fontWeight: FontWeight.w500
+//                           ),
+//                         ),
+//                       ),
+//                       IconButton(
+//                           onPressed: Children == 0 ? () {} : () {
+//                             ModalsetState(() {
+//                               Children--;
+//                             });
+//                             print('children ${Children}');
+//                           },
+//                           icon: Icon(Icons.remove)),
+//                     ],
+//                   ),
+//                 ),
+//                 SizedBox(height: 16), // Adjusted spacing
+//                 ElevatedButton(
+//                   onPressed: () {
+//                     setState(() {});
+//                     Navigator.pop(context);
+//                   },
+//                   child: Padding(
+//                     padding: const EdgeInsets.symmetric(vertical: 16), // Extended button height
+//                     child: Text(
+//                       'Select',
+//                       style: TextStyle(
+//                         color: Colors.white,
+//                         fontSize: 18, // Adjusted font size
+//                       ),
+//                     ),
+//                   ),
+//                   style: ElevatedButton.styleFrom(
+//                     backgroundColor: Bluecolor,
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.circular(8), // Adjusted button border radius
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           );
+//         },
+//       );
+//     });
+//   }
+//
+// // void showSheet(context) {
+//   //   var height = MediaQuery.of(context).size.height;
+//   //
+//   //   // Show a modal bottom sheet with the specified context and builder method.
+//   //   showModalBottomSheet(context: context, builder: (BuildContext bc) {
+//   //     return StatefulBuilder(
+//   //       builder: (BuildContext context, StateSetter ModalsetState) {
+//   //         print('Stateful builder settt');
+//   //         return Container(
+//   //           height: height * 0.5,
+//   //           padding: EdgeInsets.all(16), // Added padding to the container
+//   //
+//   //           child: Column(
+//   //             mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Adjusted spacing
+//   //             children: [
+//   //               buildRow("Rooms", Rooms, () {
+//   //                 ModalsetState(() {
+//   //                   Rooms++;
+//   //                 });
+//   //                 print('Rooms ${Rooms}');
+//   //               }, () {
+//   //                 if (Rooms > 1) {
+//   //                   ModalsetState(() {
+//   //                     Rooms--;
+//   //                   });
+//   //                   print('Rooms ${Rooms}');
+//   //                 }
+//   //               }),
+//   //               buildRow("Adults", Adult, () {
+//   //                 ModalsetState(() {
+//   //                   Adult++;
+//   //                 });
+//   //                 print('adult ${Adult}');
+//   //               }, () {
+//   //                 if (Adult > 1) {
+//   //                   ModalsetState(() {
+//   //                     Adult--;
+//   //                   });
+//   //                   print('adult ${Adult}');
+//   //                 }
+//   //               }),
+//   //               buildRow("Children", Children, () {
+//   //                 ModalsetState(() {
+//   //                   Children++;
+//   //                 });
+//   //                 print('children ${Children}');
+//   //               }, () {
+//   //                 if (Children > 0) {
+//   //                   ModalsetState(() {
+//   //                     Children--;
+//   //                   });
+//   //                   print('children ${Children}');
+//   //                 }
+//   //               }),
+//   //               ElevatedButton(
+//   //                 onPressed: () {
+//   //                   setState(() {});
+//   //                   Navigator.pop(context);
+//   //                 },
+//   //                 child: Text(
+//   //                   'Select',
+//   //                   style: TextStyle(color: Colors.white),
+//   //                 ),
+//   //                 style: ElevatedButton.styleFrom(
+//   //                   backgroundColor: Bluecolor,
+//   //                 ),
+//   //               ),
+//   //             ],
+//   //           ),
+//   //         );
+//   //       },
+//   //     );
+//   //   });
+//   // }
+//   //
+//   // Widget buildRow(String title, int value, Function() onAdd, Function() onRemove) {
+//   //   return ListTile(
+//   //     title: Text(title),
+//   //     trailing: Wrap(
+//   //       spacing: 12, // space between two icons
+//   //       children: <Widget>[
+//   //         IconButton(onPressed: onAdd, icon: Icon(Icons.add)),
+//   //         Padding(
+//   //           padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+//   //           child: Text(
+//   //             '$value',
+//   //             style: TextStyle(fontSize: 18, color: Bluecolor, fontWeight: FontWeight.w500),
+//   //           ),
+//   //         ),
+//   //         IconButton(onPressed: onRemove, icon: Icon(Icons.remove)),
+//   //       ],
+//   //     ),
+//   //   );
+//   // }
+//
+// void showSheet(context) {
+//     var height = MediaQuery
+//         .of(context)
+//         .size
+//         .height;
+//     // Show a modal bottom sheet with the specified context and builder method.
+//     showModalBottomSheet(context: context, builder: (BuildContext bc) {
+//       return StatefulBuilder(
+//         builder: (BuildContext context, StateSetter ModalsetState ) {
+//           print('Stateful builder settt');
+//           return Container(
+//             height: height * 0.5,
+//             child: Column(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children: [
+//                 ListTile(
+//                   // leading: Text('1'),
+//                   title: Text("Rooms"),
+//                   trailing: Wrap(
+//                     spacing: 12, // space between two icons
+//                     children: <Widget>[
+//                       IconButton(onPressed: () {
+//                         // ModalsetState(() {
+//                         //   Rooms++;
+//                         // });
+//                         ModalsetState(() {
+//                           Rooms++;
+//                         });
+//                         print('Rooms ${Rooms}');
+//                       }, icon: Icon(Icons.add)),
+//                       Padding(
+//                         padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+//                         child: Text('${Rooms}',
+//                           style: TextStyle(
+//                               fontSize: 18,
+//                               color: Bluecolor,
+//                               fontWeight: FontWeight.w500
+//                           ),),
+//                       ),
+//                       IconButton(onPressed: Rooms == 1 ? (){} :() {
+//                         ModalsetState(() {
+//                           Rooms--;
+//                         });
+//                         print('Rooms ${Rooms}');
+//                       }, icon: Icon(Icons.remove)), // icon-2
+//                     ],
+//                   ),
+//                 ),
+//                 ListTile(
+//                   // leading: Text('2'),
+//                   title: Text("Adults"),
+//                   trailing: Wrap(
+//                     spacing: 12, // space between two icons
+//                     children: <Widget>[
+//                       IconButton(onPressed: () {
+//                         ModalsetState(() {
+//                           Adult++;
+//                         });
+//                         print('adult ${Adult}');
+//                       }, icon: Icon(Icons.add)),
+//                       Padding(
+//                         padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+//                         child: Text('${Adult}',
+//                           style: TextStyle(
+//                               fontSize: 18,
+//                               color: Bluecolor,
+//                               fontWeight: FontWeight.w500
+//                           ),),
+//                       ),
+//                       IconButton(
+//                           onPressed: Adult == 1 ? (){} :() {
+//                         ModalsetState(() {
+//                           Adult--;
+//                         });
+//                         print('adult ${Adult}');
+//                       }, icon: Icon(Icons.remove)), // icon-2
+//                     ],
+//                   ),
+//                 ),
+//                 ListTile(
+//                   title: Text("Children"),
+//                   trailing: Wrap(
+//                     spacing: 12, // space between two icons
+//                     children: <Widget>[
+//                       IconButton(onPressed: () {
+//                         ModalsetState(() {
+//                           Children++;
+//                         });
+//                         print('children ${Children}');
+//                       }, icon: Icon(Icons.add)),
+//                       Padding(
+//                         padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+//                         child: Text('${Children}',
+//                           style: TextStyle(
+//                               fontSize: 18,
+//                               color: Bluecolor,
+//                               fontWeight: FontWeight.w500
+//                           ),),
+//                       ),
+//                       IconButton(
+//                           onPressed:Children == 0 ? (){} :() {
+//                         ModalsetState(() {
+//                           Children--;
+//                         });
+//                         print('children ${Children}');
+//                       }, icon: Icon(Icons.remove)),
+//
+//                     ],
+//                   ),
+//                 ),
+//                 Row(
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   children: [
+//                     ElevatedButton(onPressed: () {
+//                       setState((){
+//                       });
+//                       Navigator.pop(context);
+//                     }, child:
+//                     Text('Select', style: TextStyle(
+//                       color: Colors.white,
+//                     ),),
+//                       style: ElevatedButton.styleFrom(
+//                           backgroundColor: Bluecolor
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ],
+//             ),
+//           );
+//         },
+//       );
+//     });
+//   }
 }
